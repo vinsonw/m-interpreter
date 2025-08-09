@@ -67,7 +67,9 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 	// todo: expressions
 
-	for !p.curTokenIs(token.SEMICOLON) {
+	// add !p.curTokenIs(token.EOF) check,
+	// otherwise it could end up with a dead loop if the input string does not end with SEMICOLON
+	for !p.curTokenIs(token.SEMICOLON) && !p.curTokenIs(token.EOF) {
 		p.nextToken()
 	}
 
