@@ -54,6 +54,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.LET:
 		return p.parseLetStatement()
 		// return nil
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return nil
 	}
@@ -83,25 +85,38 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
-func (p *Parser) curTokenIs(t token.TokenType) bool {
-	return p.curToken.Type == t
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+	p.nextToken()
+
+	// todo: parse expression
+
+	for !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
 }
 
-func (p *Parser) peekTokenIs(t token.TokenType) bool {
-	return p.peekToken.Type == t
+func (p *Parser) curTokenIs(tokenType token.TokenType) bool {
+	return p.curToken.Type == tokenType
 }
 
-func (p *Parser) expectPeek(t token.TokenType) bool {
-	if p.peekTokenIs(t) {
+func (p *Parser) peekTokenIs(tokenType token.TokenType) bool {
+	return p.peekToken.Type == tokenType
+}
+
+func (p *Parser) expectPeek(tokenType token.TokenType) bool {
+	if p.peekTokenIs(tokenType) {
 		p.nextToken()
 		return true
 	} else {
-		p.peekError(t)
+		p.peekError(tokenType)
 		return false
 	}
 }
 
-func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+func (p *Parser) peekError(tokenType token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", tokenType, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
